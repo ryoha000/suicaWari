@@ -11,8 +11,9 @@
   const startBtn = document.querySelector('#start-btn');
   const stopBtn = document.querySelector('#stop-btn');
   const resultDiv = document.querySelector('#result-div');
-  const gameResult = document.querySelector('#geme-result');
+  const gameResult = document.querySelector('#game-result');
   const chara = document.getElementById("chara");
+  const suica = document.getElementById("suica");
 
   SpeechRecognition = webkitSpeechRecognition || SpeechRecognition;
   const recognition = new SpeechRecognition();
@@ -20,9 +21,10 @@
   recognition.lang = 'ja-JP';
   recognition.continuous = true;
 
-  let finalTranscript = ''; // 確定した(黒の)認識結果
+  let finalTranscript = '';
   let rotateY = 0
   chara.style.left = window.innerWidth / 2
+  chara.style.bottom = 0
 
   recognition.onresult = (event) => {
     for (let i = event.resultIndex; i < event.results.length; i++) {
@@ -36,14 +38,18 @@
     const migiCount = (finalTranscript.match( /(みぎ|右)/g ) || [] ).length;
     const hidariCount = (finalTranscript.match( /(ひだり|左)/g ) || [] ).length;
     const soko = finalTranscript.match( /そこ/g );
-    const position = {x: chara.style.left, y: chara.style.bottom}
+    const position = {x: chara.getBoundingClientRect().left, y: chara.getBoundingClientRect().top}
+    const suicaPosition = {x: suica.getBoundingClientRect().left, y: suica.getBoundingClientRect().top}
+    console.log(position)
     console.log('mae', maeCount)
     console.log('migi', migiCount)
     console.log('hidari', hidariCount)
     console.log('ushiro', ushiroCount)
     if (soko) {
-      gameResult.innerHTML = "おめでとう！！！"
-      return
+      if (Math.abs(suicaPosition.x - position.x) < 225 && Math.abs(suicaPosition.y - position.y) < 225) {
+        gameResult.innerHTML = "おめでとう！！！";
+        return
+      }
     }
     if (migiCount > 0) {
       rotateY += 90
@@ -53,12 +59,15 @@
       rotateY += 180
     }
     if (rotateY % 360 == 0) {
-      chara.style.bottom = maeCount * 75 + +position.y
+      chara.style.top = maeCount * (-75) + +position.y
     } else if (rotateY % 360 === 90) {
+      console.log('右むいてる')
       chara.style.left = maeCount * 75 + +position.x
     } else if (rotateY % 360 === 180) {
-      chara.style.bottom = maeCount * (-75) + +position.y
+      console.log('後ろむいてる')
+      chara.style.top = maeCount * 75 + +position.y
     } else if (rotateY % 360 === 270) {
+      console.log('左むいてる')
       chara.style.left = maeCount * (-75) + +position.x
     }
     chara.style.transform = `rotate(${rotateY}deg)`
@@ -78,7 +87,7 @@
   #container {
     background-color: burlywood;
     position: relative;
-    height: 100%;
+    height: 90%;
     width: 100%;
   }
   #suica {
@@ -89,9 +98,9 @@
   }
   #chara {
     position: absolute;
-    bottom: 0;
-    left: 50%;
     z-index: 2;
+    left: 50%;
+    bottom: 0;
   }
   #game-result {
     font-size: 100px;
