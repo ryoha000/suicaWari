@@ -36,7 +36,7 @@
     const migiCount = (finalTranscript.match( /(みぎ|右)/g ) || [] ).length;
     const hidariCount = (finalTranscript.match( /(ひだり|左)/g ) || [] ).length;
     const soko = finalTranscript.match( /そこ/g );
-    const position = {x: chara.style.right, y: chara.style.bottom}
+    const position = {x: chara.style.left, y: chara.style.bottom}
     console.log('mae', maeCount)
     console.log('migi', migiCount)
     console.log('hidari', hidariCount)
