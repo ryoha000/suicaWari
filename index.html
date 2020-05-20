@@ -25,7 +25,6 @@
   chara.style.left = window.innerWidth / 2
 
   recognition.onresult = (event) => {
-    let interimTranscript = ''; // 暫定(灰色)の認識結果
     for (let i = event.resultIndex; i < event.results.length; i++) {
       let transcript = event.results[i][0].transcript;
       if (event.results[i].isFinal) {
@@ -37,24 +36,32 @@
     const migiCount = (finalTranscript.match( /(みぎ|右)/g ) || [] ).length;
     const hidariCount = (finalTranscript.match( /(ひだり|左)/g ) || [] ).length;
     const soko = finalTranscript.match( /そこ/g );
-    // if (!!maeCount + !!ushiroCount + !!migiCount + !!hidariCount !== 1) {
-    //   gameResult.innerHTML = "一気にいっぱい言わないでよ！"
-    //   setTimeout(() => {
-    //     gameResult.innerHTML = ""
-    //   }, 0.5);
-    //   return
-    // }
     const position = {x: chara.style.right, y: chara.style.bottom}
     console.log('mae', maeCount)
     console.log('migi', migiCount)
+    console.log('hidari', hidariCount)
+    console.log('ushiro', ushiroCount)
+    if (soko) {
+      gameResult.innerHTML = "おめでとう！！！"
+      return
+    }
     if (migiCount > 0) {
       rotateY += 90
-      chara.style.transform = `rotateX(${rotateY}deg)`
     } else if (hidariCount > 0) {
-      rotateY -= 90
-      chara.style.transform = `rotateY(${rotateY}deg)`
+      rotateY += 270
+    } else if (ushiroCount > 0) {
+      rotateY += 180
     }
-    chara.style.bottom = maeCount * 75 + +position.y
+    if (rotateY % 360 == 0) {
+      chara.style.bottom = maeCount * 75 + +position.y
+    } else if (rotateY % 360 === 90) {
+      chara.style.left = maeCount * 75 + +position.x
+    } else if (rotateY % 360 === 180) {
+      chara.style.bottom = maeCount * (-75) + +position.y
+    } else if (rotateY % 360 === 270) {
+      chara.style.left = maeCount * (-75) + +position.x
+    }
+    chara.style.transform = `rotate(${rotateY}deg)`
     resultDiv.innerHTML = finalTranscript;
     finalTranscript = ''
   }
